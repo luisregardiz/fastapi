@@ -2,9 +2,9 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
-from config.openapi import custom_openapi
 from routes.tasks_routes import tasks as tasksRouter
 from routes.user_routes import auth as authRouter
+from fastapi.openapi.utils import get_openapi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,8 +18,21 @@ app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True
 
 app.include_router(authRouter)
 app.include_router(tasksRouter)
-app.openapi = custom_openapi(app)
 
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="TASKI APP",
+        version="1.0.0",
+        description="Task management application",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 
 @app.get("/")
