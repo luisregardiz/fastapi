@@ -49,7 +49,7 @@ db_name = os.getenv("DB_NAME")
 
 register_tortoise(
     app,
-    db_url=f"postgres://{user}:{password}@{host}:{port}/{db_name}",
+    db_url= os.getenv("DATABASE_URL"),
     modules={"models": ["models.task_model", "models.user_model"]},
     generate_schemas=True,
     add_exception_handlers=True
